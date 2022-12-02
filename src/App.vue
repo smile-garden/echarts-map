@@ -1,6 +1,43 @@
 <template>
   <div class="wrap">
-    <div class="wrap-chart"></div>
+    <div class="wrap-chart">
+      <div class="total-card">
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.localConfirmH5 }}</div>
+          <div class="num">{{ store.chinaTotal.localConfirm }}</div>
+          <div>本土现有确诊</div>
+        </div>
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.nowConfirm }}</div>
+          <div class="num">{{ store.chinaTotal.nowConfirm }}</div>
+          <div>现有确诊</div>
+        </div>
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.confirm }}</div>
+          <div class="num">{{ store.chinaTotal.confirm }}</div>
+          <div>累计确诊</div>
+        </div>
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.noInfect }}</div>
+          <div class="num">{{ store.chinaTotal.noInfect }}</div>
+          <div>无症状感染者</div>
+        </div>
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.importedCase }}</div>
+          <div class="num">{{ store.chinaTotal.importedCase }}</div>
+          <div>境外输入</div>
+        </div>
+        <div class="total-card__item">
+          <div>较上日+ {{ store.chinaAdd.dead }}</div>
+          <div class="num">{{ store.chinaTotal.dead }}</div>
+          <div>累计死亡</div>
+        </div>
+      </div>
+
+      <div class="total-pie"></div>
+
+      <div class="total-line"></div>
+    </div>
     <div id="china" class="wrap-map"></div>
     <div class="wrap-table">
       <table class="table" cellspacing="0" border="1">
@@ -40,6 +77,8 @@ const store = useStore();
 onMounted(async () => {
   await store.getList();
   initCharts();
+  initPie();
+  initLine();
 });
 
 const initCharts = () => {
@@ -65,7 +104,7 @@ const initCharts = () => {
       map: "china",
       aspectScale: 0.8,
       layoutCenter: ["50%", "50%"],
-      layoutSize: "120%",
+      layoutSize: "100%",
       itemStyle: {
         /* normal: {
           areaColor: {
@@ -179,6 +218,79 @@ const initCharts = () => {
     store.item = e.data.children;
   })
 }
+
+const initPie = () => {
+  const charts = echarts.init(document.querySelector('.total-pie') as HTMLElement)
+  charts.setOption({
+    backgroundColor: "#223651",
+    tooltip: {
+      trigger: 'item'
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['40%', '70%'],
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: true,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '15',
+          }
+        },
+        data: store.cityDetail.map(v => {
+          return {
+            name: v.city,
+            value: v.nowConfirm
+          }
+        })
+      }
+    ]
+  })
+}
+
+const initLine = () => {
+  const charts = echarts.init(document.querySelector('.total-line') as HTMLElement)
+  charts.setOption({
+    backgroundColor: "#223651",
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: store.cityDetail.map(v => v.city),
+      axisLine: {
+        lineStyle: {
+          color: "#fff"
+        }
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: {
+        lineStyle: {
+          color: "#fff"
+        }
+      }
+    },
+    label: {
+      show: true
+    },
+    series: [
+      {
+        data: store.cityDetail.map(v => v.nowConfirm),
+        type: 'line',
+        smooth: true
+      }
+    ]
+  })
+}
 </script>
 
 <style lang="less" scoped>
@@ -191,6 +303,37 @@ const initCharts = () => {
 
   &-chart {
     width: 400px;
+
+    .total {
+      &-card {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-template-rows: auto auto;
+        background-color: #073354;
+        text-align: center;
+        color: #fff;
+
+        &__item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 10px;
+          border: 1px solid #000;
+          
+          .num {
+            padding: 10px 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: #41b0db;
+          }
+        }
+      }
+
+      &-pie, &-line {
+        margin-top: 16px;
+        height: 320px;
+      }
+    }
   }
 
   &-map {

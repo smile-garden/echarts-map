@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { getList } from '../api';
-import type { Data, Children, ChinaAdd, ChinaTotal } from './type';
+import type { Data, Children, ChinaAdd, ChinaTotal, StatisGradeCityDetail } from './type';
 
 export const useStore = defineStore('main', {
   state: () => {
@@ -9,6 +9,7 @@ export const useStore = defineStore('main', {
       item: <Children[]>[],
       chinaAdd: <ChinaAdd>{},
       chinaTotal: <ChinaTotal>{},
+      cityDetail:<StatisGradeCityDetail[]>[],
     };
   },
   getters: {
@@ -19,6 +20,7 @@ export const useStore = defineStore('main', {
       this.list = result;
       this.chinaAdd = result.diseaseh5Shelf.chinaAdd;
       this.chinaTotal = result.diseaseh5Shelf.chinaTotal;
+      this.cityDetail = result.statisGradeCityDetail.slice(0, 5);
     },
   },
 });
